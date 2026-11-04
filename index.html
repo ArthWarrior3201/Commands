@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commands</title>
+<meta name="description" content="Download Commands for Windows, macOS and Linux.">
+<meta name="theme-color" content="#07080e">
+<link rel="icon" type="image/png" href="commands-logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="brand">
+    <img src="commands-logo.png" alt="Commands logo" width="820" height="838">
+    <h1>Commands<span class="cursor">_</span></h1>
+  </div>
+
+  <button class="download" id="download">Download</button>
+
+  <div class="panel" id="panel" hidden>
+    <div class="options" id="options"></div>
+    <div class="info">
+      <div class="row"><span class="label">Latest release</span><span class="value" id="latest"></span></div>
+      <div class="row current"><span class="label">You're downloading</span><span class="value" id="current"></span></div>
+    </div>
+    <button class="link-btn" id="more" aria-expanded="false">See More Releases &rarr;</button>
+    <div class="releases" id="releases" hidden>
+      <h2>All Commands releases</h2>
+      <ul id="release-list"></ul>
+    </div>
+  </div>
+
+  <p class="status" id="status" aria-live="polite"></p>
+
+  <footer>Needs Python 3.9 or newer &middot; <a href="https://github.com/ArthWarrior3201/Commands">Source code on GitHub</a></footer>
+
+<script>
+  const REPO = "ArthWarrior3201/Commands";
+  const API = "https://api.github.com/repos/" + REPO;
+  const $ = id => document.getElementById(id);
+  const button = $("download"), panel = $("panel"), options = $("options"), status = $("status");
+  const more = $("more"), releasesBox = $("releases"), list = $("release-list");
+  const linkToReleases = '<a href="https://github.com/' + REPO + '/releases">GitHub releases</a>';
+  let latest = null, current = null, allReleases = null;
+
+  function myOS() {
+    const p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent;
+    if (/win/i.test(p)) return "windows";
+    if (/mac|iphone|ipad/i.test(p)) return "macos";
+    if (/linux|x11|cros/i.test(p)) return "linux";
+    return "";
+  }
+
+  async function getJSON(url) {
+    const res = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+    if (res.status === 404) throw new Error("none");
+    if (!res.ok) throw new Error("http " + res.status);
+    return res.json();
+  }
+
+  // Always "Commands v1.0.0", "Commands v1.1.0"... built from the release's tag
+  function label(el, release) {
+    const tag = (release.tag_name || "").trim().replace(/^commands[\s-]*/i, "");
+    el.textContent = tag ? "Commands " + (/^v/i.test(tag) ? "v" + tag.slice(1) : "v" + tag)
+                         : (release.name || "").trim();
+  }
+
+  function card(id, name, asset, note) {
+    const a = document.createElement("a");
+    a.href = asset.browser_download_url;
+    a.download = asset.name;
+    if (id === myOS()) a.className = "mine";
+    a.innerHTML = "<strong></strong><span></span>";
+    a.querySelector("strong").textContent = name;
+    a.querySelector("span").textContent = note + " · " + asset.name;
+    return a;
+  }
+
+  // Fill the download buttons for one release
+  function show(release) {
+    const find = ext => (release.assets || []).find(a => a.name.toLowerCase().endsWith(ext));
+    const cmd = find(".cmd"), sh = find(".sh"), py = find(".py");
+    options.replaceChildren();
+    if (cmd) options.append(card("windows", "Windows", cmd, ".cmd"));
+    if (sh) {
+      options.append(card("macos", "macOS", sh, ".sh"));
+      options.append(card("linux", "Linux", sh, ".sh"));
+    }
+    if (py) {
+      const p = card("python", "Python", py, "any system");
+      p.classList.add("python");
+      options.append(p);
+    }
+    if (!cmd && !sh && !py) {
+      const none = document.createElement("div");
+      none.className = "none";
+      none.textContent = "This release has no downloads for Windows, macOS or Linux.";
+      options.append(none);
+    }
+    if (latest) label($("latest"), latest); else $("latest").textContent = "none yet";
+    current = release;
+    label($("current"), release);
+    markCurrent();
+  }
+
+  function markCurrent() {
+    for (const b of list.querySelectorAll("button.item")) {
+      b.setAttribute("aria-current", String(Boolean(current) && b.dataset.id === String(current.id)));
+    }
+  }
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    status.textContent = "Checking for the latest release...";
+    try {
+      latest = await getJSON(API + "/releases/latest");
+      show(latest);
+      panel.hidden = false;
+      button.hidden = true;
+      status.textContent = "";
+    } catch (err) {
+      button.disabled = false;
+      status.innerHTML = err.message === "none"
+        ? "No release yet. Check " + linkToReleases + " soon."
+        : "Couldn't reach GitHub right now. Try again, or go to " + linkToReleases + ".";
+    }
+  });
+
+  async function loadAllReleases() {
+    const out = [];
+    for (let page = 1; page <= 10; page++) {
+      const batch = await getJSON(API + "/releases?per_page=100&page=" + page);
+      out.push(...batch.filter(r => !r.draft));
+      if (batch.length < 100) break;
+    }
+    return out;
+  }
+
+  function fillList() {
+    list.replaceChildren();
+    if (!allReleases.length) {
+      const li = document.createElement("li");
+      li.style.padding = "12px 16px";
+      li.textContent = "No releases yet.";
+      list.append(li);
+      return;
+    }
+    for (const r of allReleases) {
+      const li = document.createElement("li");
+      const b = document.createElement("button");
+      b.className = "item";
+      b.dataset.id = r.id;
+      const left = document.createElement("span");
+      label(left, r);
+      if (latest && r.id === latest.id) left.insertAdjacentHTML("beforeend", '<span class="badge latest">Latest</span>');
+      if (r.prerelease) left.insertAdjacentHTML("beforeend", '<span class="badge">pre-release</span>');
+      const meta = document.createElement("span");
+      meta.className = "meta";
+      const when = r.published_at ? new Date(r.published_at).toLocaleDateString() : "";
+      meta.textContent = when + " →";
+      b.append(left, meta);
+      b.addEventListener("click", () => {
+        show(r);
+        releasesBox.hidden = true;
+        more.setAttribute("aria-expanded", "false");
+        more.innerHTML = "See More Releases &rarr;";
+        options.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      li.append(b);
+      list.append(li);
+    }
+  }
+
+  more.addEventListener("click", async () => {
+    if (!releasesBox.hidden) {
+      releasesBox.hidden = true;
+      more.setAttribute("aria-expanded", "false");
+      more.innerHTML = "See More Releases &rarr;";
+      return;
+    }
+    try {
+      if (!allReleases) {
+        more.textContent = "Loading releases...";
+        allReleases = await loadAllReleases();
+        fillList();
+      }
+      releasesBox.hidden = false;
+      more.setAttribute("aria-expanded", "true");
+      more.innerHTML = "Hide releases &larr;";
+      markCurrent();
+    } catch (err) {
+      more.innerHTML = "See More Releases &rarr;";
+      status.innerHTML = "Couldn't load the list. See all releases on " + linkToReleases + ".";
+    }
+  });
+</script>
+</body>
+</html>
