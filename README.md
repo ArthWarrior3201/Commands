@@ -23,6 +23,10 @@ Each download is the whole program in one file:
 This repository is the raw source code. To run it straight from here:
 `python run.py`.
 
+Running from source needs **Python 3.9 or newer**. If you're working on the
+source you most likely have it already; if not, get it from
+[python.org](https://www.python.org/downloads/) and install it first.
+
 Then type `setup` once to add Commands to PATH, the Start menu, Windows
 Terminal (with its own color scheme and icon) and Explorer's right-click menu.
 You choose which. `setup --remove` undoes it.

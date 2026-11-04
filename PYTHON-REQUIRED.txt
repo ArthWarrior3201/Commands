@@ -1,0 +1,8 @@
+Running Commands from this source code needs Python 3.9 or newer.
+
+If you're working on the source you most likely have it already.
+If not, download and install it from https://www.python.org/downloads/
+then run:  python run.py
+
+Just want to use Commands? Download it from the releases page instead:
+https://github.com/ArthWarrior3201/Commands/releases/latest
