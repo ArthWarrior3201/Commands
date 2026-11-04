@@ -23,7 +23,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
-INCLUDE = ["commands", "sdk", "docs", "run.py", "commands.cmd", "commands.sh", "README.md", "LICENSE"]
+INCLUDE = ["commands", "sdk", "docs", "run.py", "README.md", "LICENSE"]
 
 STUB = r'''"""Commands {version} - a command prompt with the CMD feel, Odus built in,
 and the Commands API. https://github.com/ArthWarrior3201/Commands

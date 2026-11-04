@@ -213,7 +213,8 @@ def single_file():
 
 
 def launcher():
-    return single_file() or os.path.join(ROOT, "commands.cmd" if IS_WIN else "commands.sh")
+    from .__main__ import write_launcher
+    return single_file() or write_launcher()
 
 
 def start_command(extra=""):

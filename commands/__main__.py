@@ -11,6 +11,41 @@ import os
 import sys
 
 
+def write_launcher() -> str:
+    """Writes a small `commands` launcher (commands.cmd on Windows) into the settings folder
+    and returns its path. It starts whatever this copy of Commands is: a downloaded
+    single file (COMMANDS_LAUNCHER) or the source folder's run.py."""
+    from . import ui
+    from .backends import python_exe
+    folder = os.path.join(ui.CONFIG_DIR, "launcher")
+    single = os.environ.get("COMMANDS_LAUNCHER")
+    if single and os.path.isfile(single):
+        target = single
+    else:
+        target = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.py")
+    if os.name == "nt":
+        path = os.path.join(folder, "commands.cmd")
+        if target.lower().endswith(".cmd"):
+            body = f'@echo off\r\ncall "{target}" %*\r\nexit /b %errorlevel%\r\n'
+        else:
+            body = f'@echo off\r\n"{python_exe()}" "{target}" %*\r\nexit /b %errorlevel%\r\n'
+    else:
+        path = os.path.join(folder, "commands")
+        body = f'#!/bin/sh\nexec "{python_exe()}" "{target}" "$@"\n'
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            same = f.read() == body
+    except OSError:
+        same = False
+    if not same:
+        os.makedirs(folder, exist_ok=True)
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(body)
+        if os.name != "nt":
+            os.chmod(path, 0o755)
+    return path
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     try:
@@ -47,11 +82,14 @@ def main(argv=None) -> int:
         line = " ".join(argv[1:]) if len(argv) > 2 else (argv[1] if len(argv) > 1 else "")
         argv = []
     term.enable_vt()
-    # put the launcher folder on this session's PATH so programs inside can run `commands api ...`
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    path = os.environ.get("PATH", "")
-    if root.lower() not in [p.lower().rstrip("\\/") for p in path.split(os.pathsep)]:
-        os.environ["PATH"] = path + os.pathsep + root
+    # put a `commands` launcher on this session's PATH so programs inside can run `commands api ...`
+    try:
+        shim_dir = os.path.dirname(write_launcher())
+        path = os.environ.get("PATH", "")
+        if shim_dir.lower() not in [p.lower().rstrip("\\/") for p in path.split(os.pathsep)]:
+            os.environ["PATH"] = path + os.pathsep + shim_dir
+    except OSError:
+        pass
     if argv and argv[0] == "api":
         from . import api
         return api.cli(argv[1:])

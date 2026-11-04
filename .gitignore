@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 dist/
 GitHub Pages/
+# launchers ship in releases (python build.py), not in the source
+commands.cmd
+commands.sh

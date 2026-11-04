@@ -71,7 +71,8 @@ class LiveApi(unittest.TestCase):
         cls.sh = Shell(interactive=True)
         cls.srv = api.Server(cls.sh)
         cls.env = dict(os.environ, **cls.srv.child_env())
-        cls.env["PATH"] = ROOT + os.pathsep + cls.env.get("PATH", "")
+        from commands.__main__ import write_launcher  # the `commands` command scripts call
+        cls.env["PATH"] = os.path.dirname(write_launcher()) + os.pathsep + cls.env.get("PATH", "")
         cls.env["PYTHONPATH"] = os.path.join(ROOT, "sdk", "python")
         cls.start_dir = os.getcwd()
         # a tiny local web server for net.download

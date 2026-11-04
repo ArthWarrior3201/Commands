@@ -11,13 +11,17 @@ C:\Users\Arth\Projects (main) › install vlc && ports
 
 Works on Windows, macOS and Linux. Needs Python 3.9+. No other downloads.
 
-## Start
+## Download
 
-```bat
-commands.cmd            (Windows)
-./commands.sh           (macOS / Linux)
-python run.py           (anywhere)
-```
+Get it from the [releases page](https://github.com/ArthWarrior3201/Commands/releases/latest).
+Each download is the whole program in one file:
+
+- **Windows:** `commands.cmd` - double-click it or run it in Command Prompt.
+- **macOS / Linux:** `commands.sh` - `chmod +x commands.sh` then `./commands.sh`.
+- **Any system:** `commands.py` - `python commands.py`.
+
+This repository is the raw source code. To run it straight from here:
+`python run.py`.
 
 Then type `setup` once to add Commands to PATH, the Start menu, Windows
 Terminal (with its own color scheme and icon) and Explorer's right-click menu.
@@ -128,6 +132,14 @@ commands api <method> k=v      call the API
 
 Settings, history, backups and apps live in `%APPDATA%\Commands`
 (`~/.config/commands` on macOS/Linux).
+
+## Making a release
+
+1. Set `VERSION` in `commands/__init__.py`.
+2. Run `python build.py`. It writes `dist/commands.cmd`, `dist/commands.sh` and
+   `dist/commands.py`, each the whole program in one file.
+3. On GitHub, create a release tagged `v<VERSION>` (for example `v1.0.0`) and
+   upload all three files.
 
 ## Tests
 
