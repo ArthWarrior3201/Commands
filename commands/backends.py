@@ -329,6 +329,22 @@ def python_exe():
     return sys.executable
 
 
+def bundled() -> bool:
+    """True when Commands runs on the Python packed inside a standalone download."""
+    return os.sep + "runtime" + os.sep in sys.executable and bool(os.environ.get("COMMANDS_LAUNCHER"))
+
+
+def apps_python():
+    """Python for the user's own .py apps: their installed Python (with its packages) if they
+    have one, otherwise the Python inside Commands."""
+    if bundled():
+        for name in ("python3", "python", "py"):
+            p = shutil.which(name)
+            if p and "windowsapps" not in p.lower() and os.path.dirname(p) != os.path.dirname(sys.executable):
+                return p
+    return python_exe()
+
+
 def run_odus(argv: list, stdin_text=None, capture=False):
     p = find_odus()
     if not p:

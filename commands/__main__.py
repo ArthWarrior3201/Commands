@@ -25,13 +25,16 @@ def write_launcher() -> str:
         target = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "run.py")
     if os.name == "nt":
         path = os.path.join(folder, "commands.cmd")
-        if target.lower().endswith(".cmd"):
+        if target.lower().endswith((".bat", ".cmd")):
             body = f'@echo off\r\ncall "{target}" %*\r\nexit /b %errorlevel%\r\n'
         else:
             body = f'@echo off\r\n"{python_exe()}" "{target}" %*\r\nexit /b %errorlevel%\r\n'
     else:
         path = os.path.join(folder, "commands")
-        body = f'#!/bin/sh\nexec "{python_exe()}" "{target}" "$@"\n'
+        if target.endswith((".sh", ".command")):  # a standalone download runs by itself
+            body = f'#!/bin/sh\nexec "{target}" "$@"\n'
+        else:
+            body = f'#!/bin/sh\nexec "{python_exe()}" "{target}" "$@"\n'
     try:
         with open(path, encoding="utf-8", newline="") as f:
             same = f.read() == body

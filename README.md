@@ -9,16 +9,27 @@ CMD and PowerShell command you know - but its own look and a lot more inside.
 C:\Users\Arth\Projects (main) › install vlc && ports
 ```
 
-Works on Windows, macOS and Linux. Needs Python 3.9+. No other downloads.
+Works on Windows, macOS and Linux. The downloads need nothing else installed.
 
 ## Download
 
 Get it from the [releases page](https://github.com/ArthWarrior3201/Commands/releases/latest).
-Each download is the whole program in one file:
+The Windows, macOS and Linux downloads are **standalone**: Python is packed
+inside, so there's nothing else to install.
 
-- **Windows:** `commands.cmd` - double-click it or run it in Command Prompt.
-- **macOS / Linux:** `commands.sh` - `chmod +x commands.sh` then `./commands.sh`.
-- **Any system:** `commands.py` - `python commands.py`.
+- **Windows:** `commands.bat` - double-click it or run it in Command Prompt.
+- **macOS:** `commands-macos.command` - in Terminal run
+  `chmod +x commands-macos.command` once, then double-click it (or run
+  `sh commands-macos.command`). Works on Intel and Apple Silicon Macs. It isn't
+  signed by Apple, so the first time right-click it and choose Open.
+- **Linux:** `commands-linux.sh` - `sh commands-linux.sh` (or `chmod +x` it and
+  run `./commands-linux.sh`). x86_64 and ARM64.
+- **Python:** `commands-python.zip` - the source files for any system that has
+  **Python 3.9 or newer**. Unzip it and run `python run.py`.
+
+The first start unpacks Commands once (about 11 MB on Windows, 60-100 MB on
+macOS/Linux) into `%LOCALAPPDATA%\Commands\runtime` or
+`~/.local/share/commands/runtime`; after that it opens straight away.
 
 This repository is the raw source code. To run it straight from here:
 `python run.py`.
@@ -140,10 +151,14 @@ Settings, history, backups and apps live in `%APPDATA%\Commands`
 ## Making a release
 
 1. Set `VERSION` in `commands/__init__.py`.
-2. Run `python build.py`. It writes `dist/commands.cmd`, `dist/commands.sh` and
-   `dist/commands.py`, each the whole program in one file.
+2. Run `python build.py`. It writes the four downloads into `dist/`:
+   `commands.bat`, `commands-macos.command`, `commands-linux.sh` (each with
+   Python packed inside) and `commands-python.zip` (the source files).
+   The packed Pythons come from python.org (Windows) and
+   [python-build-standalone](https://github.com/astral-sh/python-build-standalone)
+   (macOS, Linux); they're downloaded once into `build-cache/` and checked.
 3. On GitHub, create a release tagged `v<VERSION>` (for example `v1.0.0`) and
-   upload all three files.
+   upload all four files.
 
 ## Tests
 

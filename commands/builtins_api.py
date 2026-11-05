@@ -196,7 +196,7 @@ WT_SCHEME = {
 
 
 def single_file():
-    """When started from a downloaded commands.cmd / .sh / .py, a copy of it is kept in
+    """When started from a downloaded commands.bat / .command / .sh, a copy of it is kept in
     the settings folder so PATH and shortcuts don't depend on the Downloads folder."""
     src = os.environ.get("COMMANDS_LAUNCHER")
     if not src or not os.path.isfile(src):
@@ -204,7 +204,7 @@ def single_file():
     ext = os.path.splitext(src)[1].lower() or ".sh"
     bindir = os.path.join(ui.CONFIG_DIR, "bin")
     os.makedirs(bindir, exist_ok=True)
-    dest = os.path.join(bindir, "commands" + (ext if ext in (".cmd", ".py", ".sh") else ".sh"))
+    dest = os.path.join(bindir, "commands" + (ext if ext in (".bat", ".cmd", ".command", ".py", ".sh") else ".sh"))
     if not (os.path.exists(dest) and os.path.samefile(src, dest)):
         shutil.copyfile(src, dest)
     if not IS_WIN:
@@ -220,9 +220,11 @@ def launcher():
 def start_command(extra=""):
     """(program, arguments) that open a Commands window."""
     lf = single_file()
-    if lf and lf.lower().endswith(".cmd"):
+    if lf and lf.lower().endswith((".bat", ".cmd")):
         comspec = os.environ.get("ComSpec") or r"C:\Windows\System32\cmd.exe"
         return comspec, f'/d /s /c ""{lf}"{(" " + extra) if extra else ""}"'
+    if lf and lf.lower().endswith((".sh", ".command")):
+        return lf, extra
     script = lf or os.path.join(ROOT, "run.py")
     return backends.python_exe(), f'"{script}"{(" " + extra) if extra else ""}'
 

@@ -1,8 +1,14 @@
-Running Commands from this source code needs Python 3.9 or newer.
+Do I need Python?
 
-If you're working on the source you most likely have it already.
-If not, download and install it from https://www.python.org/downloads/
-then run:  python run.py
+Using Commands: no.
+  The Windows, macOS and Linux downloads have Python packed inside them:
+    commands.bat             Windows
+    commands-macos.command   macOS
+    commands-linux.sh        Linux
+  Get them from https://github.com/ArthWarrior3201/Commands/releases/latest
 
-Just want to use Commands? Download it from the releases page instead:
-https://github.com/ArthWarrior3201/Commands/releases/latest
+Running the source code (this folder, or commands-python.zip): yes.
+  It needs Python 3.9 or newer. If you're working on the source you most
+  likely have it already. If not, download and install it from
+  https://www.python.org/downloads/
+  then run:  python run.py

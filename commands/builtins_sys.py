@@ -895,14 +895,14 @@ def cmd_bg(ctx):
     env = ctx.sh.api_env()
     if IS_WIN:
         here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        argv = [backends.python_exe(), "-m", "commands", "--plain", "-c", line]
+        argv = [backends.python_exe(), os.path.join(here, "run.py"), "--plain", "-c", line]
         env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
         proc = subprocess.Popen(argv, stdout=f, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, env=env,
                                 creationflags=0x00000200 | NO_WINDOW)
     else:
         here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         env["PYTHONPATH"] = here + os.pathsep + env.get("PYTHONPATH", "")
-        proc = subprocess.Popen([backends.python_exe(), "-m", "commands", "--plain", "-c", line], stdout=f,
+        proc = subprocess.Popen([backends.python_exe(), os.path.join(here, "run.py"), "--plain", "-c", line], stdout=f,
                                 stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, env=env, start_new_session=True)
     ctx.sh.jobs.append(Job(n, line, proc, log))
     ui.say(ui.dim(f"[{n}] ") + ui.b(f"started") + ui.dim(f" pid {proc.pid} · log: jobs log {n}"))

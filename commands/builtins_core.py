@@ -705,7 +705,7 @@ def parse_duration(s: str) -> float:
 def _elevate_windows(line: str | None):
     import ctypes
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    params = f'-m commands --cd "{os.getcwd()}"'
+    params = f'"{os.path.join(here, "run.py")}" --cd "{os.getcwd()}"'
     if line:
         params += " --pause -c " + subprocess.list2cmdline([line])
     py = backends.python_exe()
@@ -733,11 +733,11 @@ def cmd_sudo(ctx):
     if not sudo:
         ui.say(ui.err("sudo isn't installed."))
         return 1
-    if not line:
-        return backends.run_process([sudo, "-E", backends.python_exe(), "-m", "commands"])[0]
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if not line:
+        return backends.run_process([sudo, "-E", backends.python_exe(), os.path.join(here, "run.py")])[0]
     env = dict(os.environ, PYTHONPATH=here)
-    return backends.run_process([sudo, "-E", backends.python_exe(), "-m", "commands", "-c", line], env=env)[0]
+    return backends.run_process([sudo, "-E", backends.python_exe(), os.path.join(here, "run.py"), "-c", line], env=env)[0]
 
 
 # ---------------------------------------------------------------- Odus

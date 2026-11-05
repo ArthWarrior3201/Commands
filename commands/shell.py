@@ -459,7 +459,7 @@ class Shell:
         if ext == ".ps1":
             return backends.ps_line("", stdin, capture, file=os.path.abspath(path), args=args)
         if ext == ".py":
-            return backends.run_process([backends.python_exe(), path] + args, stdin, capture)
+            return backends.run_process([backends.apps_python(), path] + args, stdin, capture)
         if ext in (".js", ".mjs"):
             node = shutil.which("node")
             if not node:
