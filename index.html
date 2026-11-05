@@ -36,6 +36,7 @@
 
 <script>
   const REPO = "ArthWarrior3201/Commands";
+  const PAGES_VERSION = "2";
   const API = "https://api.github.com/repos/" + REPO;
   const $ = id => document.getElementById(id);
   const button = $("download"), panel = $("panel"), options = $("options"), status = $("status");
@@ -89,6 +90,7 @@
       // these go through the thank-you page, which starts the download and shows how to start it
       const q = new URLSearchParams({ os: id, file: asset.browser_download_url, name: asset.name });
       if (current || latest) q.set("v", (current || latest).tag_name || "");
+      q.set("p", PAGES_VERSION);  // a new number whenever thanks.html changes, so browsers never use an old copy
       a.href = "thanks.html?" + q.toString();
     } else {
       a.href = asset.browser_download_url;
@@ -135,6 +137,9 @@
     current = release;
     label($("current"), release);
     stamp($("current"), release);
+    // remember in the address that the buttons are open (and for which release),
+    // so the browser's Back button and reloading come back here instead of the start screen
+    if (release.tag_name) history.replaceState(null, "", "#downloads=" + encodeURIComponent(release.tag_name));
     markCurrent();
   }
 
