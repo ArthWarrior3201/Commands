@@ -200,6 +200,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--cyan); outline-
 .info .row + .row { border-top: 1px solid var(--line); }
 .info .label { color: var(--muted); font-size: .85rem; white-space: nowrap; }
 .info .value { font-weight: 600; text-align: right; overflow-wrap: anywhere; font-family: var(--mono); }
+.info .value small.date { margin-left: 10px; font-weight: 400; font-size: .8rem; color: var(--muted); }
 .info .row.current .value { color: var(--cyan); }
 
 .link-btn {
