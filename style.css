@@ -122,6 +122,66 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--cyan); outline-
 .options strong { display: block; font-size: 1.05rem; }
 .options span { color: var(--muted); font-size: .85rem; font-family: var(--mono); }
 
+/* "Thank you for downloading!" (macOS only) */
+.thanks {
+  margin-top: 16px;
+  padding: 18px 18px 16px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--gradient) border-box;
+  text-align: left;
+}
+.thanks h2 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  width: fit-content;
+}
+.thanks p { margin: 0 0 10px; color: var(--muted); font-size: .92rem; }
+.thanks p strong, .thanks li strong { color: var(--text); }
+.thanks ol { margin: 0; padding-left: 20px; display: grid; gap: 10px; font-size: .92rem; color: var(--muted); }
+.thanks .cmd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+}
+.thanks code {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: .85rem;
+  color: var(--green);
+  overflow-wrap: anywhere;
+}
+.thanks button.copy {
+  flex: none;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card-hover);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.thanks button.copy:hover { border-color: var(--blue); }
+.thanks .note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .9rem;
+}
+.thanks .note strong { color: var(--cyan); }
+
 /* release info */
 .info {
   margin-top: 16px;
