@@ -83,6 +83,24 @@
                          : (release.name || "").trim();
   }
 
+  // Release dates as DD/MM/YYYY, taken from GitHub for every release
+  function dmy(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    const two = n => String(n).padStart(2, "0");
+    return two(d.getDate()) + "/" + two(d.getMonth() + 1) + "/" + d.getFullYear();
+  }
+
+  function stamp(el, release) {
+    const when = dmy(release.published_at);
+    if (!when) return;
+    const small = document.createElement("small");
+    small.className = "date";
+    small.textContent = when;
+    el.append(small);
+  }
+
   function card(id, name, asset, note) {
     const a = document.createElement("a");
     a.href = asset.browser_download_url;
@@ -151,9 +169,10 @@
       none.textContent = "This release has no downloads for Windows, macOS or Linux.";
       options.append(none);
     }
-    if (latest) label($("latest"), latest); else $("latest").textContent = "none yet";
+    if (latest) { label($("latest"), latest); stamp($("latest"), latest); } else $("latest").textContent = "none yet";
     current = release;
     label($("current"), release);
+    stamp($("current"), release);
     markCurrent();
   }
 
@@ -210,7 +229,7 @@
       if (r.prerelease) left.insertAdjacentHTML("beforeend", '<span class="badge">pre-release</span>');
       const meta = document.createElement("span");
       meta.className = "meta";
-      const when = r.published_at ? new Date(r.published_at).toLocaleDateString() : "";
+      const when = dmy(r.published_at);
       meta.textContent = when + " →";
       b.append(left, meta);
       b.addEventListener("click", () => {
