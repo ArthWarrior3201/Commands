@@ -6,7 +6,7 @@ CMD and PowerShell command you know - but its own look and a lot more inside.
 ```
 ▌Commands [Version 1.0.0]
 
-C:\Users\Arth\Projects (main) › install vlc && ports
+C:\Users\TestAdmin\Projects (main) › install vlc && ports
 ```
 
 Works on Windows, macOS and Linux. The downloads need nothing else installed.
