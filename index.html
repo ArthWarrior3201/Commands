@@ -19,24 +19,6 @@
 
   <div class="panel" id="panel" hidden>
     <div class="options" id="options"></div>
-    <section class="thanks" id="mac-thanks" hidden aria-live="polite">
-      <h2>Thank you for downloading!</h2>
-      <p>Two quick steps before the first start on your Mac. Open <strong>Terminal</strong> and run:</p>
-      <ol>
-        <li>
-          <span>Let it run (browsers remove this when downloading):</span>
-          <div class="cmd"><code id="mac-chmod"></code><button class="copy" data-copy="mac-chmod">Copy</button></div>
-        </li>
-        <li>
-          <span>Then double-click it. It isn't signed by Apple, so the first time <strong>right-click it and choose Open</strong>.</span>
-        </li>
-      </ol>
-      <div class="note">
-        <strong>macOS Tahoe 26 Developer Beta or newer:</strong> right-click &rarr; Open doesn't get past the warning
-        any more. Run this instead, then double-click it:
-        <div class="cmd"><code id="mac-xattr"></code><button class="copy" data-copy="mac-xattr">Copy</button></div>
-      </div>
-    </section>
     <div class="info">
       <div class="row"><span class="label">Latest release</span><span class="value" id="latest"></span></div>
       <div class="row current"><span class="label">You're downloading</span><span class="value" id="current"></span></div>
@@ -103,41 +85,21 @@
 
   function card(id, name, asset, note) {
     const a = document.createElement("a");
-    a.href = asset.browser_download_url;
-    a.download = asset.name;
+    if (id === "macos") {
+      // the Mac download goes through the thank-you page, which starts it and shows the setup steps
+      const q = new URLSearchParams({ file: asset.browser_download_url, name: asset.name });
+      if (current || latest) q.set("v", (current || latest).tag_name || "");
+      a.href = "thanks.html?" + q.toString();
+    } else {
+      a.href = asset.browser_download_url;
+      a.download = asset.name;
+    }
     if (id === myOS()) a.className = "mine";
     a.innerHTML = "<strong></strong><span></span>";
     a.querySelector("strong").textContent = name;
     a.querySelector("span").textContent = note ? note + " · " + asset.name : asset.name;
-    if (id === "macos") a.addEventListener("click", () => macThanks(asset.name));
     return a;
   }
-
-  // Only for the macOS download: the steps a Mac needs before the first start
-  const thanks = $("mac-thanks");
-  function macThanks(file) {
-    const path = "~/Downloads/" + file;
-    $("mac-chmod").textContent = "chmod +x " + path;
-    $("mac-xattr").textContent = "xattr -d com.apple.quarantine " + path;
-    thanks.hidden = false;
-    thanks.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  thanks.addEventListener("click", async (e) => {
-    const b = e.target.closest("button.copy");
-    if (!b) return;
-    const text = $(b.dataset.copy).textContent;
-    try {
-      await navigator.clipboard.writeText(text);
-      b.textContent = "Copied";
-    } catch {
-      const r = document.createRange();
-      r.selectNodeContents($(b.dataset.copy));
-      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
-      b.textContent = "Press Ctrl+C";
-    }
-    setTimeout(() => { b.textContent = "Copy"; }, 1600);
-  });
 
   // Fill the download buttons for one release
   function show(release) {
@@ -153,8 +115,8 @@
     const mac = find("-macos.command", ".command", "-macos.sh", ".sh");
     const linux = find("-linux.sh", ".sh");
     const py = find("-python.zip", ".py");
+    current = release;
     options.replaceChildren();
-    thanks.hidden = true;
     if (win) options.append(card("windows", "Windows", win, ""));
     if (mac) options.append(card("macos", "macOS", mac, ""));
     if (linux) options.append(card("linux", "Linux", linux, ""));

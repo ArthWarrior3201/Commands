@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thank you for downloading Commands</title>
+<meta name="description" content="Getting Commands ready on your Mac.">
+<meta name="theme-color" content="#07080e">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="commands-logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="brand" href="index.html">
+    <img src="commands-logo.png" alt="Commands logo" width="820" height="838">
+    <h1>Commands<span class="cursor">_</span></h1>
+  </a>
+
+  <main class="thanks">
+    <h2>Thank you for downloading!</h2>
+    <p class="started" id="started">Your download of <strong id="file-name">commands-macos.command</strong>
+      <span id="version"></span> should start now.
+      <a id="again" href="index.html">Didn't start? Click here.</a></p>
+
+    <p>Two quick steps before the first start on your Mac. Open <strong>Terminal</strong> and run:</p>
+    <ol>
+      <li>
+        <span>Let it run (browsers remove this when downloading):</span>
+        <div class="cmd"><code id="mac-chmod"></code><button class="copy" data-copy="mac-chmod">Copy</button></div>
+      </li>
+      <li>
+        <span>Then double-click it. It isn't signed by Apple, so the first time <strong>right-click it and choose Open</strong>.</span>
+      </li>
+    </ol>
+    <div class="note">
+      <strong>macOS Tahoe 26 Developer Beta or newer:</strong> right-click &rarr; Open doesn't get past the warning
+      any more. Run this instead, then double-click it:
+      <div class="cmd"><code id="mac-xattr"></code><button class="copy" data-copy="mac-xattr">Copy</button></div>
+    </div>
+  </main>
+
+  <a class="link-btn back" href="index.html">&larr; Back to downloads</a>
+
+  <footer>The Python download needs Python 3.9 or newer &middot; <a href="https://github.com/ArthWarrior3201/Commands">Source code on GitHub</a></footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const params = new URLSearchParams(location.search);
+  // only ever download Commands' own release files from GitHub
+  const SAFE = /^https:\/\/github\.com\/ArthWarrior3201\/Commands\/releases\/download\/[^?#]+$/;
+  const url = params.get("file") || "";
+  const name = (params.get("name") || url.split("/").pop() || "commands-macos.command").replace(/[^\w.\-]/g, "");
+  const version = params.get("v") || "";
+
+  $("file-name").textContent = name;
+  if (version) $("version").textContent = "(" + version + ")";
+  const path = "~/Downloads/" + name;
+  $("mac-chmod").textContent = "chmod +x " + path;
+  $("mac-xattr").textContent = "xattr -d com.apple.quarantine " + path;
+
+  if (SAFE.test(url)) {
+    $("again").href = url;
+    // a short pause lets the page show first; the file downloads without leaving this page
+    setTimeout(() => { location.href = url; }, 400);
+  } else {
+    $("started").innerHTML = 'Get <strong>commands-macos.command</strong> from the <a href="index.html">download page</a>, then:';
+  }
+
+  document.querySelector(".thanks").addEventListener("click", async (e) => {
+    const b = e.target.closest("button.copy");
+    if (!b) return;
+    const text = $(b.dataset.copy).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      b.textContent = "Copied";
+    } catch {
+      const r = document.createRange();
+      r.selectNodeContents($(b.dataset.copy));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = "Press Ctrl+C";
+    }
+    setTimeout(() => { b.textContent = "Copy"; }, 1600);
+  });
+</script>
+</body>
+</html>
