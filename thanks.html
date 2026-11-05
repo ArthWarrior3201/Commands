@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Thank you for downloading Commands</title>
-<meta name="description" content="Getting Commands ready on your Mac.">
+<meta name="description" content="Getting Commands ready on your computer.">
 <meta name="theme-color" content="#07080e">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="commands-logo.png">
@@ -18,24 +18,66 @@
 
   <main class="thanks">
     <h2>Thank you for downloading!</h2>
-    <p class="started" id="started">Your download of <strong id="file-name">commands-macos.command</strong>
+    <p class="started" id="started">Your download of <strong id="file-name"></strong>
       <span id="version"></span> should start now.
       <a id="again" href="index.html">Didn't start? Click here.</a></p>
 
-    <p>Two quick steps before the first start on your Mac. Open <strong>Terminal</strong> and run:</p>
-    <ol>
-      <li>
-        <span>Let it run (browsers remove this when downloading):</span>
-        <div class="cmd"><code id="mac-chmod"></code><button class="copy" data-copy="mac-chmod">Copy</button></div>
-      </li>
-      <li>
-        <span>Then double-click it. It isn't signed by Apple, so the first time <strong>right-click it and choose Open</strong>.</span>
-      </li>
-    </ol>
-    <div class="note">
-      <strong>macOS Tahoe 26 Developer Beta or newer:</strong> right-click &rarr; Open doesn't get past the warning
-      any more. Run this instead, then double-click it:
-      <div class="cmd"><code id="mac-xattr"></code><button class="copy" data-copy="mac-xattr">Copy</button></div>
+    <!-- Windows -->
+    <section data-os="windows" hidden>
+      <p>Nothing to install. Here's how to start it on <strong>Windows</strong>:</p>
+      <ol>
+        <li><span>If your browser asks whether to keep the file, choose <strong>Keep</strong>.</span></li>
+        <li>
+          <span>Double-click <strong class="fname"></strong>. It isn't signed by Microsoft, so if
+            <strong>"Windows protected your PC"</strong> appears, click <strong>More info</strong> and then
+            <strong>Run anyway</strong>.</span>
+        </li>
+        <li><span>The first start unpacks Commands once (a few seconds). After that it opens straight away.</span></li>
+      </ol>
+      <div class="note">
+        <strong>Rather skip the warning?</strong> Run this once in PowerShell, then double-click it:
+        <div class="cmd"><code id="win-unblock"></code><button class="copy" data-copy="win-unblock">Copy</button></div>
+      </div>
+    </section>
+
+    <!-- macOS -->
+    <section data-os="macos" hidden>
+      <p>Two quick steps before the first start on your Mac. Open <strong>Terminal</strong> and run:</p>
+      <ol>
+        <li>
+          <span>Let it run (browsers remove this when downloading):</span>
+          <div class="cmd"><code id="mac-chmod"></code><button class="copy" data-copy="mac-chmod">Copy</button></div>
+        </li>
+        <li>
+          <span>Then double-click it. It isn't signed by Apple, so the first time <strong>right-click it and choose Open</strong>.</span>
+        </li>
+      </ol>
+      <div class="note">
+        <strong>macOS Tahoe 26 Developer Beta or newer:</strong> right-click &rarr; Open doesn't get past the warning
+        any more. Run this instead, then double-click it:
+        <div class="cmd"><code id="mac-xattr"></code><button class="copy" data-copy="mac-xattr">Copy</button></div>
+      </div>
+    </section>
+
+    <!-- Linux -->
+    <section data-os="linux" hidden>
+      <p>Nothing to install. Open a <strong>terminal</strong> and start it with:</p>
+      <ol>
+        <li>
+          <div class="cmd"><code id="linux-run"></code><button class="copy" data-copy="linux-run">Copy</button></div>
+        </li>
+        <li><span>The first start unpacks Commands once (a few seconds). After that it opens straight away.
+          Works on x86_64 and ARM64.</span></li>
+      </ol>
+      <div class="note">
+        <strong>Want to start it like a program?</strong> Make it runnable once, then use <code class="inline">./</code>:
+        <div class="cmd"><code id="linux-chmod"></code><button class="copy" data-copy="linux-chmod">Copy</button></div>
+      </div>
+    </section>
+
+    <div class="note setup">
+      <strong>Tip:</strong> once Commands is open, type <code class="inline">setup</code> to add it to your PATH
+      and menus, so you can start it with just <code class="inline">commands</code>.
     </div>
   </main>
 
@@ -48,22 +90,35 @@
   const params = new URLSearchParams(location.search);
   // only ever download Commands' own release files from GitHub
   const SAFE = /^https:\/\/github\.com\/ArthWarrior3201\/Commands\/releases\/download\/[^?#]+$/;
+  const DEFAULT = { windows: "commands.bat", macos: "commands-macos.command", linux: "commands-linux.sh" };
   const url = params.get("file") || "";
-  const name = (params.get("name") || url.split("/").pop() || "commands-macos.command").replace(/[^\w.\-]/g, "");
-  const version = params.get("v") || "";
+  let os = (params.get("os") || "").toLowerCase();
+  if (!DEFAULT[os]) {
+    const n = (url.split("/").pop() || "").toLowerCase();
+    os = /\.(bat|cmd)$/.test(n) ? "windows" : /\.command$|macos/.test(n) ? "macos" : "linux";
+  }
+  const name = (params.get("name") || url.split("/").pop() || DEFAULT[os]).replace(/[^\w.\-]/g, "") || DEFAULT[os];
+  const version = (params.get("v") || "").replace(/[^\w.\-]/g, "");
 
+  document.querySelector(`section[data-os="${os}"]`).hidden = false;
   $("file-name").textContent = name;
+  for (const el of document.querySelectorAll(".fname")) el.textContent = name;
   if (version) $("version").textContent = "(" + version + ")";
-  const path = "~/Downloads/" + name;
-  $("mac-chmod").textContent = "chmod +x " + path;
-  $("mac-xattr").textContent = "xattr -d com.apple.quarantine " + path;
+
+  const unix = "~/Downloads/" + name;
+  $("win-unblock").textContent = "Unblock-File \"$env:USERPROFILE\\Downloads\\" + name + "\"";
+  $("mac-chmod").textContent = "chmod +x " + unix;
+  $("mac-xattr").textContent = "xattr -d com.apple.quarantine " + unix;
+  $("linux-run").textContent = "sh " + unix;
+  $("linux-chmod").textContent = "chmod +x " + unix + " && " + unix;
 
   if (SAFE.test(url)) {
     $("again").href = url;
     // a short pause lets the page show first; the file downloads without leaving this page
     setTimeout(() => { location.href = url; }, 400);
   } else {
-    $("started").innerHTML = 'Get <strong>commands-macos.command</strong> from the <a href="index.html">download page</a>, then:';
+    $("started").innerHTML = 'Get <strong></strong> from the <a href="index.html">download page</a>, then:';
+    $("started").querySelector("strong").textContent = name;
   }
 
   document.querySelector(".thanks").addEventListener("click", async (e) => {
