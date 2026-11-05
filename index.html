@@ -144,12 +144,17 @@
     }
   }
 
-  button.addEventListener("click", async () => {
+  // Shows the download buttons. tag: a release to pick instead of the latest one.
+  async function openDownloads(tag) {
     button.disabled = true;
     status.textContent = "Checking for the latest release...";
     try {
       latest = await getJSON(API + "/releases/latest");
-      show(latest);
+      let pick = latest;
+      if (tag && tag !== latest.tag_name) {
+        try { pick = await getJSON(API + "/releases/tags/" + encodeURIComponent(tag)); } catch { pick = latest; }
+      }
+      show(pick);
       panel.hidden = false;
       button.hidden = true;
       status.textContent = "";
@@ -159,7 +164,20 @@
         ? "No release yet. Check " + linkToReleases + " soon."
         : "Couldn't reach GitHub right now. Try again, or go to " + linkToReleases + ".";
     }
-  });
+  }
+
+  button.addEventListener("click", () => openDownloads());
+
+  // index.html#downloads (or #downloads=v1.0.0) opens straight on the download buttons;
+  // "Back to downloads" on the thank-you page uses it
+  const jump = location.hash.match(/^#downloads(?:=(.+))?$/);
+  if (jump) {
+    button.hidden = true;
+    openDownloads(jump[1] ? decodeURIComponent(jump[1]) : "").then(() => {
+      if (!panel.hidden) return;
+      button.hidden = false;  // GitHub couldn't be reached: offer the button again
+    });
+  }
 
   async function loadAllReleases() {
     const out = [];

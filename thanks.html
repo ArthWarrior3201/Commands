@@ -20,7 +20,7 @@
     <h2>Thank you for downloading!</h2>
     <p class="started" id="started">Your download of <strong id="file-name"></strong>
       <span id="version"></span> should start now.
-      <a id="again" href="index.html">Didn't start? Click here.</a></p>
+      <a id="again" href="index.html#downloads">Didn't start? Click here.</a></p>
 
     <!-- Windows -->
     <section data-os="windows" hidden>
@@ -81,7 +81,7 @@
     </div>
   </main>
 
-  <a class="link-btn back" href="index.html">&larr; Back to downloads</a>
+  <a class="link-btn back" id="back" href="index.html#downloads">&larr; Back to downloads</a>
 
   <footer>The Python download needs Python 3.9 or newer &middot; <a href="https://github.com/ArthWarrior3201/Commands">Source code on GitHub</a></footer>
 
@@ -104,6 +104,9 @@
   $("file-name").textContent = name;
   for (const el of document.querySelectorAll(".fname")) el.textContent = name;
   if (version) $("version").textContent = "(" + version + ")";
+  // back to the download buttons, on the same release
+  const back = "index.html#downloads" + (version ? "=" + encodeURIComponent(version) : "");
+  $("back").href = back;
 
   const unix = "~/Downloads/" + name;
   $("win-unblock").textContent = "Unblock-File \"$env:USERPROFILE\\Downloads\\" + name + "\"";
@@ -117,7 +120,7 @@
     // a short pause lets the page show first; the file downloads without leaving this page
     setTimeout(() => { location.href = url; }, 400);
   } else {
-    $("started").innerHTML = 'Get <strong></strong> from the <a href="index.html">download page</a>, then:';
+    $("started").innerHTML = 'Get <strong></strong> from the <a href="' + back + '">download page</a>, then:';
     $("started").querySelector("strong").textContent = name;
   }
 
