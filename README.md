@@ -22,6 +22,9 @@ inside, so there's nothing else to install.
   `chmod +x commands-macos.command` once, then double-click it (or run
   `sh commands-macos.command`). Works on Intel and Apple Silicon Macs. It isn't
   signed by Apple, so the first time right-click it and choose Open.
+  On **macOS Tahoe 26 Developer Beta or newer** right-click → Open no longer
+  gets past the warning; run this instead, then double-click it:
+  `xattr -d com.apple.quarantine ~/Downloads/commands-macos.command`
 - **Linux:** `commands-linux.sh` - `sh commands-linux.sh` (or `chmod +x` it and
   run `./commands-linux.sh`). x86_64 and ARM64.
 - **Python:** `commands-python.zip` - the source files for any system that has
