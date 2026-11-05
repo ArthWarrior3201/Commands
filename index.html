@@ -85,9 +85,9 @@
 
   function card(id, name, asset, note) {
     const a = document.createElement("a");
-    if (id === "macos") {
-      // the Mac download goes through the thank-you page, which starts it and shows the setup steps
-      const q = new URLSearchParams({ file: asset.browser_download_url, name: asset.name });
+    if (id === "windows" || id === "macos" || id === "linux") {
+      // these go through the thank-you page, which starts the download and shows how to start it
+      const q = new URLSearchParams({ os: id, file: asset.browser_download_url, name: asset.name });
       if (current || latest) q.set("v", (current || latest).tag_name || "");
       a.href = "thanks.html?" + q.toString();
     } else {
